@@ -451,10 +451,10 @@ func CollectRows[T any](rows Rows, fn RowToFunc[T]) ([]T, error) {
 	return AppendRows([]T{}, rows, fn)
 }
 
-// AppendRowsWithFilter iterates through rows, calling fn for each row, and appending the results into a slice of T.
+// AppendFilteredRows iterates through rows, calling fn for each row, and appending the results into a slice of T.
 // If filter is not nil, only rows for which filter returns true will be appended, If filter is nil, all rows will be appended.
 // This function closes the rows automatically on return.
-func AppendRowsWithFilter[T any, S ~[]T](slice S, rows Rows, fn RowToFunc[T], filter func(T)bool) (S, error){
+func AppendFilteredRows[T any, S ~[]T](slice S, rows Rows, fn RowToFunc[T], filter func(T)bool) (S, error){
 	defer rows.Close()
 
 	for rows.Next() {
@@ -480,11 +480,11 @@ func AppendRowsWithFilter[T any, S ~[]T](slice S, rows Rows, fn RowToFunc[T], fi
 	return slice, nil
 }
 
-// CollectRowsWithFilter iterates through rows, calling fn for each row, and collecting the results into a slice of T.
+// CollectFilteredRows iterates through rows, calling fn for each row, and collecting the results into a slice of T.
 // If filter is not nil, only rows for which filter returns true will be collected, If filter is nil, all rows will be collected.
 // This function closes the rows automatically on return.
-func CollectRowsWithFilter[T any](rows Rows, fn RowToFunc[T], filter func(T)bool) ([]T, error){
-	return AppendRowsWithFilter([]T{}, rows, fn, filter)
+func CollectFilteredRows[T any](rows Rows, fn RowToFunc[T], filter func(T)bool) ([]T, error){
+	return AppendFilteredRows([]T{}, rows, fn, filter)
 }
 
 // CollectOneRow calls fn for the first row in rows and returns the result. If no rows are found returns an error where errors.Is(ErrNoRows) is true.

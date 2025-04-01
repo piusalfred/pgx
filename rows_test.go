@@ -175,14 +175,14 @@ func TestCollectRows(t *testing.T) {
 	})
 }
 
-func TestCollectRowsWithFilter(t *testing.T) {
+func TestCollectFilteredRows(t *testing.T) {
 	filter := func(value int32) bool {
-	return value <= 20
+		return value <= 20
 	}
-	
+
 	defaultConnTestRunner.RunTest(context.Background(), t, func(ctx context.Context, t testing.TB, conn *pgx.Conn) {
 		rows, _ := conn.Query(ctx, `select n from generate_series(0, 99) n`)
-		numbers, err := pgx.CollectRowsWithFilter(rows, func(row pgx.CollectableRow) (int32, error) {
+		numbers, err := pgx.CollectFilteredRows(rows, func(row pgx.CollectableRow) (int32, error) {
 			var n int32
 			err := row.Scan(&n)
 			return n, err
@@ -240,38 +240,37 @@ func ExampleCollectRows() {
 	// [1 2 3 4 5]
 }
 
-
-// This example uses CollectRowsWithFilter with a manually written collector function. In most cases RowTo, RowToAddrOf,
+// This example uses CollectFilteredRows with a manually written collector function. In most cases RowTo, RowToAddrOf,
 // RowToStructByPos, RowToAddrOfStructByPos, or another generic function would be used.
 // The filter function is used to filter out rows that don't meet the criteria.
 // In this example, we filter out all rows where the number is less than 3.
 func ExampleCollectRowsWithFilter() {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
-	
+
 	conn, err := pgx.Connect(ctx, os.Getenv("PGX_TEST_DATABASE"))
 	if err != nil {
 		fmt.Printf("Unable to establish connection: %v", err)
 		return
 	}
-	
+
 	rows, _ := conn.Query(ctx, `select n from generate_series(1, 5) n`)
-	numbers, err := pgx.CollectRowsWithFilter(rows, func(row pgx.CollectableRow) (int32, error) {
+	numbers, err := pgx.CollectFilteredRows(rows, func(row pgx.CollectableRow) (int32, error) {
 		var n int32
 		err := row.Scan(&n)
 		return n, err
 	},
-	func(n int32) bool {
-		return n >= 3
-	})
-	
+		func(n int32) bool {
+			return n >= 3
+		})
+
 	if err != nil {
-		fmt.Printf("CollectRowsWithFilter error: %v", err)
+		fmt.Printf("CollectFilteredRows error: %v", err)
 		return
 	}
-	
+
 	fmt.Println(numbers)
-	
+
 	// Output:
 	// [3 4 5]
 }
