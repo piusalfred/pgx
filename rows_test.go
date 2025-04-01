@@ -244,7 +244,7 @@ func ExampleCollectRows() {
 // RowToStructByPos, RowToAddrOfStructByPos, or another generic function would be used.
 // The filter function is used to filter out rows that don't meet the criteria.
 // In this example, we filter out all rows where the number is less than 3.
-func ExampleCollectRowsWithFilter() {
+func ExampleCollectFilteredRows() {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
